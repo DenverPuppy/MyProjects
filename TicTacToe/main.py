@@ -1,4 +1,5 @@
 import pygame
+import random
 
 pygame.init()
 WIDTH = 1200
@@ -12,10 +13,11 @@ sector_height = rec_height/3
 
 black = (0, 0, 0)
 white = (255, 255, 255)
+red = (255, 0, 0)
 other = (211,30,24)
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 clicked = [0,0,0,0,0,0,0,0,0]
-symbol = [0,0,0,0,0,0,0,0,0]
+symbol = ["","","","","","","","",""]
 
 line1_list = [[(pos_x, pos_y), (pos_x+sector_width, pos_y+sector_height)], [(pos_x+sector_width, pos_y), (pos_x+sector_width*2, pos_y+sector_height)], [(pos_x+sector_width*2, pos_y), (pos_x+sector_width*3, pos_y+sector_height)],
               [(pos_x, pos_y+sector_height), (pos_x+sector_width, pos_y+sector_height*2)], [(pos_x+sector_width, pos_y+sector_height), (pos_x+sector_width*2, pos_y+sector_height*2)], [(pos_x+sector_width*2, pos_y+sector_height), (pos_x+sector_width*3, pos_y+sector_height*2)],
@@ -30,22 +32,33 @@ circle_list =  [(pos_x+sector_width/2, pos_y+sector_height/2), (pos_x+sector_wid
                 (pos_x+sector_width/2, pos_y+sector_height/2*3), (pos_x+sector_width/2*3, pos_y+sector_height/2*3), (pos_x+sector_width/2*5, pos_y+sector_height/2*3),
                 (pos_x+sector_width/2, pos_y+sector_height/2*5), (pos_x+sector_width/2*3, pos_y+sector_height/2*5), (pos_x+sector_width/2*5, pos_y+sector_height/2*5)]
 
+win_list_row =  [[(pos_x, pos_y+sector_height/2), (pos_x+sector_width*3, pos_y+sector_height/2)],
+                 [(pos_x, pos_y+sector_height*3/2), (pos_x+sector_width*3, pos_y+sector_height*3/2)],
+                 [(pos_x, pos_y+sector_height*5/2), (pos_x+sector_width*3, pos_y+sector_height*5/2)]]
+
+win_list_col =  [[(pos_x+sector_width/2, pos_y), (pos_x+sector_width/2, pos_y+sector_height*3)],
+                 [(pos_x+sector_width*3/2, pos_y), (pos_x+sector_width*3/2, pos_y+sector_height*3)],
+                 [(pos_x+sector_width*5/2, pos_y), (pos_x+sector_width*5/2, pos_y+sector_height*3)]]
+win_list_diag = [[(pos_x, pos_y), (pos_x+sector_width*3, pos_y+sector_height*3)],
+                 [(pos_x, pos_y+sector_height*3), (pos_x+sector_width*3, pos_y)]]
+
 mouse_range = line1_list[:]
 
-state = False
+turn = random.randint(1,10)
+def get_turn():
+    if turn >= 5:
+        temp_state = False
+    else:
+        temp_state = True
+    return temp_state
 
+state = get_turn()
 
-
-
-# position > (300, 80) and position < (500, 293) and clicked[0] == False:
 
 def mouse_click():
     global state
     global loop
     position = pygame.mouse.get_pos()
-
-
-
 
     for i in range(9):
         if mouse_range[i][0][0] < position[0] < mouse_range[i][1][0] and mouse_range[i][0][1] < position[1] < mouse_range[i][1][1] and clicked[i] == False: #Jeśli jest w obszarze
@@ -57,35 +70,16 @@ def mouse_click():
                      symbol[i] = "o"
                 state = not state
 
-    # # Pozycja 2
-    # if position > mouse_range[1][0] and position < mouse_range[1][1] and clicked[1] == False:
-    #     if pygame.mouse.get_pressed()[0] == True:
-    #         clicked[1] = True
-    #         if state == False:
-    #             symbol[1] = "x"
-    #         elif state == True:
-    #             symbol[1] = "o"
-    #         state = not state
-    #
-    # # Pozycja 3
-    # if position > (700, 80) and position < (900, 293) and clicked[2] == False:
-    #     if pygame.mouse.get_pressed()[0] == True:
-    #         clicked[2] = True
-    #         if state == False:
-    #             symbol[2] = "x"
-    #         elif state == True:
-    #             symbol[2] = "o"
-    #         state = not state
-
-
-
-
-
-
-
-
-
-
+def draw_win(input):
+    for i in range(3):
+        if input == (i,"c"):
+            pygame.draw.lines(screen, red, True, win_list_row[i], 10)
+        elif input == ("r",i):
+            pygame.draw.lines(screen, red, True, win_list_col[i], 10)
+        if input == (2,2):
+            pygame.draw.lines(screen, red, True, win_list_diag[0], 10)
+        elif input == (3,3):
+            pygame.draw.lines(screen, red, True, win_list_diag[1], 10)
 
 def draw_symbols():
 
@@ -95,34 +89,6 @@ def draw_symbols():
             pygame.draw.lines(screen, white, True, line2_list[i], 5)
         elif clicked[i] == True and symbol[i] == "o":
             pygame.draw.circle(screen, white, circle_list[i], 100, 4)
-
-        # # Pole 2
-        # if clicked[1] == True and symbol[1] == "x":
-        #     pygame.draw.lines(screen, white, True, line1_list[1], 5)
-        #     pygame.draw.lines(screen, white, True, line2_list[1], 5)
-        # elif clicked[1] == True and symbol[1] == "o":
-        #     pygame.draw.circle(screen, white, circle_list[1], 100, 4)
-        #
-        # # Pole 3
-        # if clicked[2] == True and symbol[2] == "x":
-        #     pygame.draw.lines(screen, white, True, line1_list[2], 5)
-        #     pygame.draw.lines(screen, white, True, line2_list[2], 5)
-        # elif clicked[2] == True and symbol[2] == "o":
-        #     pygame.draw.circle(screen, white, circle_list[2], 100, 4)
-        # ... i tak dalej bym musiał wypisywać
-
-
-
-
-
-# def draw_symbols_o():
-#         mouse_click()
-#         if clicked[0] == True:
-#             pygame.draw.circle(screen, white, (400, 187), 100, 4)
-
-
-        # print(position)
-
 
 def draw_board():
 
@@ -143,7 +109,6 @@ def game(): # Gra
     clock = pygame.time.Clock()
     done = False
 
-
     while done == False:
         screen.fill(black)
         for event in pygame.event.get():
@@ -152,12 +117,44 @@ def game(): # Gra
         draw_board()
         mouse_click()
         draw_symbols()
+        rules()
         pygame.display.flip()
         clock.tick(60)
         print(pygame.mouse.get_pos())
     pygame.quit()
 
-#def rules():
+def rules():
+    for x in range(3):
+
+            #Poziomo
+            if symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "xxx":
+                col = (x,"c")
+                draw_win(col)
+            elif symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "ooo":
+                col = (x,"c")
+                draw_win(col)
+
+            #Pionowo
+            elif symbol[x]+symbol[x+3]+symbol[x+6] == "xxx":
+                row = ("r",x)
+                draw_win(row)
+            elif symbol[x]+symbol[x+3]+symbol[x+6] == "ooo":
+                row = ("r",x)
+                draw_win(row)
+
+            #Skos
+            elif symbol[0]+symbol[4]+symbol[8] == "xxx":
+                diag = (2,2)
+                draw_win(diag)
+            elif symbol[2]+symbol[4]+symbol[6] == "xxx":
+                diag = (3,3)
+                draw_win(diag)
+            elif symbol[0]+symbol[4]+symbol[8] == "ooo":
+                diag = (2, 2)
+                draw_win(diag)
+            elif symbol[2]+symbol[4]+symbol[6] == "ooo":
+                diag = (3, 3)
+                draw_win(diag)
 
 
 def main():
