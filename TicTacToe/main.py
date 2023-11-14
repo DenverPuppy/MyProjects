@@ -4,6 +4,7 @@ import random
 pygame.init()
 WIDTH = 1200
 HEIGHT = 800
+screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pos_x = WIDTH / 4
 pos_y = (0.1 * HEIGHT)
 rec_width = WIDTH - 0.5 * WIDTH
@@ -15,7 +16,8 @@ black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
 other = (211,30,24)
-screen = pygame.display.set_mode([WIDTH, HEIGHT])
+
+
 clicked = [0,0,0,0,0,0,0,0,0]
 symbol = ["","","","","","","","",""]
 
@@ -45,6 +47,7 @@ win_list_diag = [[(pos_x, pos_y), (pos_x+sector_width*3, pos_y+sector_height*3)]
 mouse_range = line1_list[:]
 
 turn = random.randint(1,10)
+
 def get_turn():
     if turn >= 5:
         temp_state = False
@@ -53,6 +56,34 @@ def get_turn():
     return temp_state
 
 state = get_turn()
+
+
+def highlits():
+    if state == False:
+        pygame.draw.lines(screen, white, True, ((pos_x/4,pos_y+60), (pos_x/4+138,pos_y+60)), 5)
+    elif state == True:
+        pygame.draw.lines(screen, white, True, ((pos_x*3 + pos_x/4,pos_y+60),(pos_x*3 + pos_x/4 + 138,pos_y+60)), 5)
+
+def player_text():
+    points1 = 0
+    points1 = str(points1)
+    points2 = 0
+    points2 = str(points2)
+    text_font = pygame.font.SysFont("Impact", 40)
+    score_font = pygame.font.SysFont("Impact", 120)
+
+    score1 = score_font.render(points1, True, white)
+    score2 = score_font.render(points2, True, white)
+
+    player1 = text_font.render("PLAYER 1", True, white)
+    player2 = text_font.render("PLAYER 2", True, white)
+
+
+    screen.blit(player1, (pos_x/4,pos_y))
+    screen.blit(player2, (pos_x*3 + pos_x/4,pos_y))
+    screen.blit(score1, (pos_x/3 + pos_x/12 , pos_y*4))
+    screen.blit(score2, (pos_x*3 + pos_x/3 + pos_x/12, pos_y * 4))
+
 
 
 def mouse_click():
@@ -109,12 +140,15 @@ def game(): # Gra
     clock = pygame.time.Clock()
     done = False
 
+
     while done == False:
         screen.fill(black)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
         draw_board()
+        player_text()
+        highlits()
         mouse_click()
         draw_symbols()
         rules()
