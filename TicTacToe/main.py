@@ -48,6 +48,10 @@ mouse_range = line1_list[:]
 
 turn = random.randint(1,10)
 
+points1 = 0
+points2 = 0
+
+
 def get_turn():
     if turn >= 5:
         temp_state = False
@@ -56,7 +60,7 @@ def get_turn():
     return temp_state
 
 state = get_turn()
-
+round_end = False
 
 def highlits():
     if state == False:
@@ -65,15 +69,15 @@ def highlits():
         pygame.draw.lines(screen, white, True, ((pos_x*3 + pos_x/4,pos_y+60),(pos_x*3 + pos_x/4 + 138,pos_y+60)), 5)
 
 def player_text():
-    points1 = 0
-    points1 = str(points1)
-    points2 = 0
-    points2 = str(points2)
+    global points1
+    global points2
+    points1_str = str(points1)
+    points2_str = str(points2)
     text_font = pygame.font.SysFont("Impact", 40)
     score_font = pygame.font.SysFont("Impact", 120)
 
-    score1 = score_font.render(points1, True, white)
-    score2 = score_font.render(points2, True, white)
+    score1 = score_font.render(points1_str, True, white)
+    score2 = score_font.render(points2_str, True, white)
 
     player1 = text_font.render("PLAYER 1", True, white)
     player2 = text_font.render("PLAYER 2", True, white)
@@ -90,27 +94,103 @@ def mouse_click():
     global state
     global loop
     position = pygame.mouse.get_pos()
-
-    for i in range(9):
-        if mouse_range[i][0][0] < position[0] < mouse_range[i][1][0] and mouse_range[i][0][1] < position[1] < mouse_range[i][1][1] and clicked[i] == False: #Jeśli jest w obszarze
-            if pygame.mouse.get_pressed()[0] == True:   # Jeśli jest wciśnięta myszka
-                clicked[i] = True                       # Wpisuje że to pole jest już zajęte
-                if state == False:
-                    symbol[i] = "x"
-                elif state == True:
-                     symbol[i] = "o"
-                state = not state
+    if round_end == False:
+        for i in range(9):
+            if mouse_range[i][0][0] < position[0] < mouse_range[i][1][0] and mouse_range[i][0][1] < position[1] < mouse_range[i][1][1] and clicked[i] == False: #Jeśli jest w obszarze
+                if pygame.mouse.get_pressed()[0] == True:   # Jeśli jest wciśnięta myszka
+                    clicked[i] = True                       # Wpisuje że to pole jest już zajęte
+                    if state == False:
+                        symbol[i] = "x"
+                    elif state == True:
+                         symbol[i] = "o"
+                    state = not state
 
 def draw_win(input):
     for i in range(3):
         if input == (i,"c"):
             pygame.draw.lines(screen, red, True, win_list_row[i], 10)
+            round_end = True
+            return round_end
         elif input == ("r",i):
             pygame.draw.lines(screen, red, True, win_list_col[i], 10)
+            round_end = True
+            return round_end
         if input == (2,2):
             pygame.draw.lines(screen, red, True, win_list_diag[0], 10)
+            round_end = True
+            return round_end
         elif input == (3,3):
             pygame.draw.lines(screen, red, True, win_list_diag[1], 10)
+            round_end = True
+            return round_end
+
+def tie():
+    tie_list = []
+    for sym in symbol:
+        if sym != "":
+            tie_list.append("Tie")
+        else:
+            return
+    tie_bool = all(i == tie_list[0] for i in tie_list)
+    if tie_bool == True:
+        winner = "none"
+        new_game(winner)
+
+def restart(winner):
+    global clicked
+    global symbol
+    global round_end
+    global points1
+    global points2
+
+    clicked = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    symbol = ["", "", "", "", "", "", "", "", ""]
+    round_end = False
+    if winner == "x":
+        points1 += 1
+    elif winner == "o":
+        points2 += 1
+    elif winner == "none":
+        points1 = points1
+        points2 = points2
+
+
+
+
+def new_game(winner):
+    global round_end
+    round_end = True
+    keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_SPACE] == True:
+        restart(winner)
+    else:
+        pygame.draw.rect(screen, black, (WIDTH/5, HEIGHT/4, WIDTH*0.6 ,HEIGHT*0.4))
+        pygame.draw.rect(screen, white, (WIDTH/5, HEIGHT/4, WIDTH*0.6 ,HEIGHT*0.4), width=5)
+        text_font = pygame.font.SysFont("Impact", 65)
+        text_font2 = pygame.font.SysFont("Impact", 45)
+        if winner == "x":
+            info = text_font.render("Player 1 won this round", True, white)
+            info2 = text_font2.render("Press SPACE to play again", True, white)
+            info3 =  text_font2.render("Press Q to Quit", True, white)
+            screen.blit(info, (WIDTH/5+WIDTH/20,HEIGHT/4+HEIGHT/20))
+            screen.blit(info2, (WIDTH/5+WIDTH/20,HEIGHT/4+HEIGHT/6))
+            screen.blit(info3, (WIDTH/5+WIDTH/20,HEIGHT/4+HEIGHT/4))
+
+        elif winner == "o":
+            info = text_font.render("Player 2 won this round", True, white)
+            info2 = text_font2.render("Press SPACE to play again", True, white)
+            info3 =  text_font2.render("Press Q to Quit", True, white)
+            screen.blit(info, (WIDTH/5+WIDTH/20,HEIGHT/4+HEIGHT/20))
+            screen.blit(info2, (WIDTH/5+WIDTH/20,HEIGHT/4+HEIGHT/6))
+            screen.blit(info3, (WIDTH/5+WIDTH/20,HEIGHT/4+HEIGHT/4))
+        elif winner == "none":
+            info = text_font.render("Tie !", True, white)
+            info2 = text_font2.render("Press SPACE to play again", True, white)
+            info3 =  text_font2.render("Press Q to Quit", True, white)
+            screen.blit(info, (WIDTH/5+WIDTH/4,HEIGHT/4+HEIGHT/20))
+            screen.blit(info2, (WIDTH/5+WIDTH/20,HEIGHT/4+HEIGHT/6))
+            screen.blit(info3, (WIDTH/5+WIDTH/20,HEIGHT/4+HEIGHT/4))
 
 def draw_symbols():
 
@@ -141,11 +221,17 @@ def game(): # Gra
     done = False
 
 
+
     while done == False:
         screen.fill(black)
         for event in pygame.event.get():
+            print(event)
             if event.type == pygame.QUIT:
                 done = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    done = True
+
         draw_board()
         player_text()
         highlits()
@@ -158,37 +244,58 @@ def game(): # Gra
     pygame.quit()
 
 def rules():
+
     for x in range(3):
+        #Poziomo
+        if symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "xxx":
+            col = (x,"c")
+            draw_win(col)
+            winner = "x"
+            new_game(winner)
+        elif symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "ooo":
+            col = (x,"c")
+            draw_win(col)
+            winner = "o"
+            new_game(winner)
 
-            #Poziomo
-            if symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "xxx":
-                col = (x,"c")
-                draw_win(col)
-            elif symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "ooo":
-                col = (x,"c")
-                draw_win(col)
+        #Pionowo
+        elif symbol[x]+symbol[x+3]+symbol[x+6] == "xxx":
+            row = ("r",x)
+            draw_win(row)
+            winner = "x"
+            new_game(winner)
+        elif symbol[x]+symbol[x+3]+symbol[x+6] == "ooo":
+            row = ("r",x)
+            draw_win(row)
+            winner = "o"
+            new_game(winner)
 
-            #Pionowo
-            elif symbol[x]+symbol[x+3]+symbol[x+6] == "xxx":
-                row = ("r",x)
-                draw_win(row)
-            elif symbol[x]+symbol[x+3]+symbol[x+6] == "ooo":
-                row = ("r",x)
-                draw_win(row)
+        #Skos
+        elif symbol[0]+symbol[4]+symbol[8] == "xxx":
+            diag = (2,2)
+            draw_win(diag)
+            winner = "x"
+            new_game(winner)
 
-            #Skos
-            elif symbol[0]+symbol[4]+symbol[8] == "xxx":
-                diag = (2,2)
-                draw_win(diag)
-            elif symbol[2]+symbol[4]+symbol[6] == "xxx":
-                diag = (3,3)
-                draw_win(diag)
-            elif symbol[0]+symbol[4]+symbol[8] == "ooo":
-                diag = (2, 2)
-                draw_win(diag)
-            elif symbol[2]+symbol[4]+symbol[6] == "ooo":
-                diag = (3, 3)
-                draw_win(diag)
+        elif symbol[2]+symbol[4]+symbol[6] == "xxx":
+            diag = (3,3)
+            draw_win(diag)
+            winner = "x"
+            new_game(winner)
+
+        elif symbol[0]+symbol[4]+symbol[8] == "ooo":
+            diag = (2, 2)
+            draw_win(diag)
+            winner = "o"
+            new_game(winner)
+
+        elif symbol[2]+symbol[4]+symbol[6] == "ooo":
+            diag = (3, 3)
+            draw_win(diag)
+            winner = "o"
+            new_game(winner)
+        else:
+            tie()
 
 
 def main():
