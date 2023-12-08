@@ -46,13 +46,13 @@ win_list_diag = [[(pos_x, pos_y), (pos_x+sector_width*3, pos_y+sector_height*3)]
 
 mouse_range = line1_list[:]
 
-turn = random.randint(1,10)
 
 points1 = 0
 points2 = 0
 
 
 def get_turn():
+    turn = random.randint(1, 10)
     if turn >= 5:
         temp_state = False
     else:
@@ -109,20 +109,16 @@ def draw_win(input):
     for i in range(3):
         if input == (i,"c"):
             pygame.draw.lines(screen, red, True, win_list_row[i], 10)
-            round_end = True
-            return round_end
+
         elif input == ("r",i):
             pygame.draw.lines(screen, red, True, win_list_col[i], 10)
-            round_end = True
-            return round_end
+
         if input == (2,2):
             pygame.draw.lines(screen, red, True, win_list_diag[0], 10)
-            round_end = True
-            return round_end
+
         elif input == (3,3):
             pygame.draw.lines(screen, red, True, win_list_diag[1], 10)
-            round_end = True
-            return round_end
+
 
 def tie():
     tie_list = []
@@ -137,6 +133,7 @@ def tie():
         new_game(winner)
 
 def restart(winner):
+    global state
     global clicked
     global symbol
     global round_end
@@ -148,11 +145,14 @@ def restart(winner):
     round_end = False
     if winner == "x":
         points1 += 1
+        state = True
     elif winner == "o":
         points2 += 1
+        state = False
     elif winner == "none":
         points1 = points1
         points2 = points2
+        state = get_turn()
 
 
 
@@ -244,31 +244,36 @@ def game(): # Gra
     pygame.quit()
 
 def rules():
-
+    print(symbol)
     for x in range(3):
-        #Poziomo
-        if symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "xxx":
-            col = (x,"c")
-            draw_win(col)
-            winner = "x"
-            new_game(winner)
-        elif symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "ooo":
-            col = (x,"c")
-            draw_win(col)
-            winner = "o"
-            new_game(winner)
 
         #Pionowo
-        elif symbol[x]+symbol[x+3]+symbol[x+6] == "xxx":
+        if symbol[x]+symbol[x+3]+symbol[x+6] == "xxx":
             row = ("r",x)
             draw_win(row)
             winner = "x"
             new_game(winner)
+            return
         elif symbol[x]+symbol[x+3]+symbol[x+6] == "ooo":
             row = ("r",x)
             draw_win(row)
             winner = "o"
             new_game(winner)
+            return
+
+        #Poziomo
+        elif symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "xxx":
+            col = (x,"c")
+            draw_win(col)
+            winner = "x"
+            new_game(winner)
+            return
+        elif symbol[x*3]+symbol[x*3+1]+symbol[x*3+2] == "ooo":
+            col = (x,"c")
+            draw_win(col)
+            winner = "o"
+            new_game(winner)
+            return
 
         #Skos
         elif symbol[0]+symbol[4]+symbol[8] == "xxx":
@@ -276,26 +281,32 @@ def rules():
             draw_win(diag)
             winner = "x"
             new_game(winner)
+            return
 
         elif symbol[2]+symbol[4]+symbol[6] == "xxx":
             diag = (3,3)
             draw_win(diag)
             winner = "x"
             new_game(winner)
+            return
 
         elif symbol[0]+symbol[4]+symbol[8] == "ooo":
             diag = (2, 2)
             draw_win(diag)
             winner = "o"
             new_game(winner)
+            return
 
         elif symbol[2]+symbol[4]+symbol[6] == "ooo":
             diag = (3, 3)
             draw_win(diag)
             winner = "o"
             new_game(winner)
-        else:
+            return
+
+        elif x == 2:
             tie()
+
 
 
 def main():
